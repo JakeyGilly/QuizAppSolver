@@ -26,7 +26,7 @@ public class Diodes {
                 ZenerDiodeReverseBiased();
                 break;
             case "Iterator":
-                Iterator();
+                ForwardBiased();
                 break;
         }
     }
@@ -67,10 +67,10 @@ public class Diodes {
             }
             vD = newVD;
         }
-        var iR = (Vcc - vD) / R;
-        var vR = iR * R;
+        var current = (Vcc - vD) / R;
+        var vR = current * R;
         
-        AnsiConsole.WriteLine($"The current is {UnitConverter.ConvertToUnit(iR)}A.");
+        AnsiConsole.WriteLine($"The current is {UnitConverter.ConvertToUnit(current)}A.");
         AnsiConsole.WriteLine($"The voltage across the resistor is {UnitConverter.ConvertToUnit(vR)}V.");
         AnsiConsole.WriteLine($"The voltage across the diode is {UnitConverter.ConvertToUnit(vD)}V.");
     }
@@ -145,50 +145,5 @@ public class Diodes {
         AnsiConsole.WriteLine($"The current is {UnitConverter.ConvertToUnit(current)}A.");
         AnsiConsole.WriteLine($"The voltage across the resistor is {UnitConverter.ConvertToUnit(vR)}V.");
         AnsiConsole.WriteLine($"The voltage across the Zener diode is {UnitConverter.ConvertToUnit(vZ)}V.");
-    }
-
-    private static void Iterator() {
-        var iSInput = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter the [green]saturation current[/]")
-                .PromptStyle("grey")
-                .DefaultValue("2n")
-                .DefaultValueStyle("grey"));
-        var nInput = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter the [green]ideality factor[/]")
-                .PromptStyle("grey")
-                .DefaultValue("2")
-                .DefaultValueStyle("grey"));
-        var VccInput = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter the [green]supply voltage[/]")
-                .PromptStyle("grey")
-                .DefaultValue("12")
-                .DefaultValueStyle("grey"));
-        var RInput = AnsiConsole.Prompt(
-            new TextPrompt<string>("Enter the [green]resistance of the resistor[/]")
-                .PromptStyle("grey")
-                .DefaultValue("1k")
-                .DefaultValueStyle("grey"));
-        
-        var iS = UnitConverter.ConvertUnits(iSInput);
-        var n = UnitConverter.ConvertUnits(nInput);
-        var Vcc = UnitConverter.ConvertUnits(VccInput);
-        var R = UnitConverter.ConvertUnits(RInput);
-        
-        var vD = 600e-3;
-        while (true) {
-            var newVD = (n / 40) * Math.Log(1 + (Vcc - vD) / (R * iS));
-            if (Math.Abs(newVD - vD) == 0) {
-                vD = newVD;
-                break;
-            }
-            vD = newVD;
-        }
-        
-        var vR = (Vcc - vD);
-        var current = vR / R;
-        
-        AnsiConsole.WriteLine($"The current is {UnitConverter.ConvertToUnit(current)}A.");
-        AnsiConsole.WriteLine($"The voltage across the resistor is {UnitConverter.ConvertToUnit(vR)}V.");
-        AnsiConsole.WriteLine($"The voltage across the diode is {UnitConverter.ConvertToUnit(vD)}V.");
     }
 }
