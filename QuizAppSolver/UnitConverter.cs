@@ -1,18 +1,20 @@
 using System.Text.RegularExpressions;
+using System.Data;
 
 namespace QuizAppSolver;
 
 public class UnitConverter {
     public static double ConvertUnits(string input) {
+        input = SolveExpression(input);
         var match = Regex.Match(input, @"^(\d*\.?\d+)([munpMkK]?)(\d*)$");
-
-        if (!match.Success)
+        if (!match.Success) {
             throw new ArgumentException("Invalid input format");
+        }
 
         double baseValue = double.Parse(match.Groups[1].Value);
         string unit = match.Groups[2].Value.ToLower();
         string subscript = match.Groups[3].Value;
-
+        
         double multiplier = unit switch {
             "m" => 1e-3,
             "u" => 1e-6,
@@ -23,14 +25,10 @@ public class UnitConverter {
             _ => 1.0
         };
 
-        // Multiply base by unit multiplier
         double result = baseValue * multiplier;
-
-        // If there's a subscript (like "6" in "1k6"), add it as a fractional part
         if (!string.IsNullOrEmpty(subscript)) {
             result += double.Parse(subscript) * (multiplier / 10);
         }
-
         return result;
     }
 
@@ -45,5 +43,15 @@ public class UnitConverter {
             return formatted + units[i];
         }
         return value.ToString("0.##");
+    }
+
+    private static string SolveExpression(string input) {
+        if (!Regex.IsMatch(input, @"[\+\-\*/]")) return input;
+        try {
+            var result = new DataTable().Compute(input, null);
+            return result.ToString()!;
+        } catch {
+            throw new ArgumentException("Invalid arithmetic expression");
+        }
     }
 }
