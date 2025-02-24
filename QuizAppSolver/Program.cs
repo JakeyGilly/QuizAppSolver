@@ -5,7 +5,7 @@ public static class Program {
     public static void Main(string[] args) {
         AnsiConsole.Markup("Welcome to the [underline orange3]QuizApp Solver[/]!");
         AnsiConsole.WriteLine();
-        var fruit = AnsiConsole.Prompt(
+        var topic = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("Select the [green]topic[/]")
                 .PageSize(10)
@@ -14,7 +14,7 @@ public static class Program {
                     "Diodes"
                 }));
 
-        if (fruit == "Diodes") {
+        if (topic == "Diodes") {
             Diodes.Diode();
         }
     }
