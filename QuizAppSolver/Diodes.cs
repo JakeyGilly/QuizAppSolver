@@ -162,13 +162,19 @@ public class Diodes {
                 .Title("Select the [green]Multiple Diode type[/]")
                 .PageSize(10)
                 .MoreChoicesText("[grey](Move up and down to reveal more options)[/]")
-                .AddChoices("Parallel Forward Biased", "Series Forward Biased", "Forward Biased in Parallel with Resistor", "Reverse Biased in Parallel with Resistor", "Zener Diode Reverse Biased in Parallel with Resistor", "Back"));
+                .AddChoices("Parallel Forward Biased", "Series Forward Biased", "Parallel Diodes in Opposite Directions", "Forward Biased in Parallel with Resistor", "Reverse Biased in Parallel with Resistor", "Zener Diode Reverse Biased in Parallel with Resistor", "Back"));
         switch (diode) {
             case "Parallel Forward Biased":
                 ParallelForwardBiased();
                 break;
             case "Series Forward Biased":
                 SeriesForwardBiased();
+                break;
+            case "Parallel Diodes in Opposite Directions":
+                ParallelDiodesInOppositeDirections();
+                break;
+            case "Parallel Reverse Biased":
+                ParallelForwardBiased();
                 break;
             case "Forward Biased in Parallel with Resistor":
                 ForwardBiasedInParallelWithResistor();
@@ -302,6 +308,65 @@ public class Diodes {
         AnsiConsole.WriteLine($"The voltage across each diode is {UnitConverter.ConvertToUnit(vD)}V.");
     }
 
+    private static void ParallelDiodesInOppositeDirections() {
+        // only works for 2 diodes
+        // meant to be 1 forward biased and 1 reverse biased
+        // doesn't support zener diodes past breakdown
+        var diodes = new string[] { "Forward Biased", "Reverse Biased" };
+        var iSInput = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter the [green]saturation current[/]")
+                .PromptStyle("grey")
+                .DefaultValue("2n")
+                .DefaultValueStyle("grey"));
+        var nInput = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter the [green]ideality factor[/]")
+                .PromptStyle("grey")
+                .DefaultValue("2")
+                .DefaultValueStyle("grey"));
+        var VccInput = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter the [green]supply voltage[/]")
+                .PromptStyle("grey")
+                .DefaultValue("12")
+                .DefaultValueStyle("grey"));
+        var RInput = AnsiConsole.Prompt(
+            new TextPrompt<string>("Enter the [green]resistance of the resistor[/]")
+                .PromptStyle("grey")
+                .DefaultValue("1k")
+                .DefaultValueStyle("grey"));
+        
+        var iS = UnitConverter.ConvertUnits(iSInput);
+        var n = UnitConverter.ConvertUnits(nInput);
+        var Vcc = UnitConverter.ConvertUnits(VccInput);
+        var R = UnitConverter.ConvertUnits(RInput);
+        
+        // reverse bias diode is negliable
+        foreach (var diode in diodes) {
+            if (diode != "Forward Biased") continue;
+            double vR;
+            var vD = 600e-3;
+            while (true) {
+                vR = Vcc - vD;
+                var I = vR / R;
+                var newVD = (n / 40) * Math.Log(1 + I / iS);
+                if (Math.Abs(newVD - vD) == 0) {
+                    vD = newVD;
+                    break;
+                }
+                vD = newVD;
+                if (Console.KeyAvailable) {
+                    break; //Stop the loop after a key as been pressed
+                }
+            }
+            var current = vR / R;
+            
+            AnsiConsole.WriteLine($"The current is {UnitConverter.ConvertToUnit(current)}A.");
+            AnsiConsole.WriteLine($"The voltage across the resistor is {UnitConverter.ConvertToUnit(vR)}V.");
+            AnsiConsole.WriteLine($"The voltage across the diode is {UnitConverter.ConvertToUnit(vD)}V.");
+            return;
+        }
+        
+    }
+
     private static void ForwardBiasedInParallelWithResistor() {
         var iSInput = AnsiConsole.Prompt(
             new TextPrompt<string>("Enter the [green]saturation current[/]")
@@ -407,7 +472,7 @@ public class Diodes {
         var vR = Vcc - vRWithoutDiode;
         
         AnsiConsole.WriteLine($"The current through the diode is {UnitConverter.ConvertToUnit(current)}A.");
-        AnsiConsole.WriteLine($"The current through the resistors is {UnitConverter.ConvertToUnit(iRD)}A.");
+        AnsiConsole.WriteLine($"The current through the resistor and diode is {UnitConverter.ConvertToUnit(iRD)}A.");
         AnsiConsole.WriteLine($"The voltage across the resistor in parallel with the diode is {UnitConverter.ConvertToUnit(vRWithoutDiode)}V.");
         AnsiConsole.WriteLine($"The voltage across the resistor is {UnitConverter.ConvertToUnit(vR)}V.");
     }
