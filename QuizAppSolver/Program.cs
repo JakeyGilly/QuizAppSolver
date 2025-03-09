@@ -11,11 +11,16 @@ public static class Program {
                 .PageSize(10)
                 .MoreChoicesText("[grey](Move up and down to reveal more fruits)[/]")
                 .AddChoices(new[] {
-                    "Diodes"
+                    "Diodes", "Op-Amps"
                 }));
 
-        if (topic == "Diodes") {
-            Diodes.Diode();
+        switch (topic) {
+            case "Diodes":
+                Diodes.Diode();
+                break;
+            case "Op-Amps":
+                OpAmps.OpAmp();
+                break;
         }
     }
 }
