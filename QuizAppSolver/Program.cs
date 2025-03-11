@@ -1,8 +1,10 @@
 ﻿using QuizAppSolver;
+using QuizAppSolver.Diodes;
+using QuizAppSolver.OpAmps;
 using Spectre.Console;
 
 public static class Program {
-    public static void Main(string[] args) {
+    public static void Main() {
         AnsiConsole.Markup("Welcome to the [underline orange3]QuizApp Solver[/]!");
         AnsiConsole.WriteLine();
         var topic = AnsiConsole.Prompt(
@@ -10,9 +12,7 @@ public static class Program {
                 .Title("Select the [green]topic[/]")
                 .PageSize(10)
                 .MoreChoicesText("[grey](Move up and down to reveal more fruits)[/]")
-                .AddChoices(new[] {
-                    "Diodes", "Op-Amps"
-                }));
+                .AddChoices("Diodes", "Op-Amps"));
 
         switch (topic) {
             case "Diodes":
