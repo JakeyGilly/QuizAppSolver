@@ -38,7 +38,10 @@ public class Inverting {
 
         var gain = OpAmpUtils.CalculateGain(feedbackResistor, inputResistor, true);
         AnsiConsole.WriteLine($"The gain is {UnitConverter.ConvertToUnit(gain)}");
-        if (gainMode) return;
+        if (gainMode) {
+            var menuGain = AnsiConsole.Confirm("Back to the main menu");
+            if (menuGain) OpAmps.OpAmp();
+        }
         
         var output = gain * inputVoltage;
         output = Math.Clamp(output, -saturation, saturation);

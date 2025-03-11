@@ -22,9 +22,9 @@ public class ForwardBiased {
     private static void ForwardBiasedVoltage() {
         double iS = 0, n = 0, Vcc = 0, R = 0;
         new UserInputBuilder()
-            .AddVoltageInput("supply voltage", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val)
             .AddResistorInput("", val => R = val)
-            .AddCurrentInput("saturation current", val => iS = val)
+            .AddCurrentInput("saturation", val => iS = val)
             .AddNumericInput("ideality factor", val => n = val, "2")
             .Build();
 

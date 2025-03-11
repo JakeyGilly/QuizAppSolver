@@ -44,7 +44,10 @@ public class InvertingSumming {
         var A = -(1 / inputResistors[0]) * feedbackResistor;
         var B = -(1 / inputResistors[1]) * feedbackResistor;
         AnsiConsole.WriteLine($"The output in terms of the inputs A and B is {A}A + {B}B");
-        if (gainMode) return;
+        if (gainMode) {
+            var menuGain = AnsiConsole.Confirm("Back to the main menu");
+            if (menuGain) OpAmps.OpAmp();
+        }
 
         var resistanceWeightedVoltages = 0.0;
         for (int i = 0; i < 2; i++) {

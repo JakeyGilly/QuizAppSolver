@@ -43,7 +43,10 @@ public class NonInvertingSumming {
         var B = gain * (inputResistors[0] / (inputResistors[0] + inputResistors[1]));
         AnsiConsole.WriteLine($"The gain is {UnitConverter.ConvertToUnit(gain)}");
         AnsiConsole.WriteLine($"The output in terms of the inputs A and B is {A}A + {B}B");
-        if (gainMode) return;
+        if (gainMode) {
+            var menuGain = AnsiConsole.Confirm("Back to the main menu");
+            if (menuGain) OpAmps.OpAmp();
+        }
         
         var output = (inputVoltages[0]*inputResistors[0] + inputVoltages[1]*inputResistors[1]) / (inputResistors[0] + inputResistors[1]) * gain;
         Math.Clamp(output, -saturation, saturation);
