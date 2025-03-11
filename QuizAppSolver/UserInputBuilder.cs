@@ -1,4 +1,6 @@
 using Spectre.Console;
+using System;
+using System.Collections.Generic;
 
 namespace QuizAppSolver;
 
@@ -77,7 +79,7 @@ public class UserInputBuilder {
         foreach (var (prompt, defaultValue, postfix, useSuffix, setter, condition) in _inputs) {
             if (condition != null && !condition()) continue;
             var input = AnsiConsole.Prompt(
-                new TextPrompt<string>($"Enter the [green]{prompt}[/] {postfix}")
+                new TextPrompt<string>($"Enter the [green]{prompt}[/]{postfix}")
                     .PromptStyle("grey")
                     .DefaultValue(defaultValue)
                     .DefaultValueStyle("grey")
@@ -90,7 +92,7 @@ public class UserInputBuilder {
             List<double> inputs = [];
             for (int i = 0; i < count; i++) {
                 string value = AnsiConsole.Prompt(
-                    new TextPrompt<string>($"Enter the [green]{prompt} {i + 1}[/] {postfix}")
+                    new TextPrompt<string>($"Enter the [green]{prompt} {i + 1}[/]{postfix}")
                         .PromptStyle("grey")
                         .DefaultValue(defaultValue)
                         .DefaultValueStyle("grey")
@@ -102,6 +104,7 @@ public class UserInputBuilder {
     }
 
     private static string FormatPrompt(string basePrompt, string suffix, bool useSuffix) {
+        if (string.IsNullOrWhiteSpace(basePrompt)) return useSuffix ? suffix : "";
         return useSuffix ? $"{basePrompt} {suffix}" : basePrompt;
     }
 }
