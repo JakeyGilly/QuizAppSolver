@@ -1,3 +1,4 @@
+using System.Numerics;
 using Spectre.Console;
 
 namespace QuizAppSolver.Diodes;
@@ -22,9 +23,9 @@ public class ForwardBiased {
     private static void ForwardBiasedVoltage() {
         double iS = 0, n = 0, Vcc = 0, R = 0;
         new UserInputBuilder()
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
-            .AddCurrentInput("saturation", val => iS = val)
+            .AddCurrentInput("saturation", val => iS = val.Real)
             .AddNumericInput("ideality factor", val => n = val, "2")
             .Build();
 
@@ -57,9 +58,9 @@ public class ForwardBiased {
         double num = 0, iS = 0, n = 0, Vcc = 0, R = 0;
         new UserInputBuilder()
             .AddNumericInput("number of diodes", val => num = val, "2")
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
-            .AddCurrentInput("saturation", val => iS = val)
+            .AddCurrentInput("saturation", val => iS = val.Real)
             .AddNumericInput("ideality factor", val => n = val, "2")
             .Build();
         
@@ -95,9 +96,9 @@ public class ForwardBiased {
         double num = 0, iS = 0, n = 0, Vcc = 0, R = 0;
         new UserInputBuilder()
             .AddNumericInput("number of diodes", val => num = val, "2")
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
-            .AddCurrentInput("saturation", val => iS = val)
+            .AddCurrentInput("saturation", val => iS = val.Real)
             .AddNumericInput("ideality factor", val => n = val, "2")
             .Build();
 
@@ -131,10 +132,10 @@ public class ForwardBiased {
     private static void ForwardBiasedInParallelWithResistor() {
         double iS = 0, n = 0, Vcc = 0, R = 0, RD = 0;
         new UserInputBuilder()
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
             .AddResistorInput("diode", val => RD = val, postfix: "(the resistor in parallel with the diode)")
-            .AddCurrentInput("saturation", val => iS = val)
+            .AddCurrentInput("saturation", val => iS = val.Real)
             .AddNumericInput("ideality factor", val => n = val, "2")
             .Build();
         

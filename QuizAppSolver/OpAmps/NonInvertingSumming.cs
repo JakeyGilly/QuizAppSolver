@@ -31,11 +31,11 @@ public class NonInvertingSumming {
             .AddSelection("Do you need to calculate the [green]gain[/] or the [green]output voltage[/]?", 
                 val => gainMode = val, 
                 new Dictionary<bool, string> { { true, "Gain" }, { false, "Output Voltage" } })
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val, condition: () => !gainMode)
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)), condition: () => !gainMode)
             .AddMultipleResistorInput("input", 2, val => inputResistors = val)
             .AddResistorInput("feedback", val => feedbackResistance = val)
             .AddResistorInput("ground", val => groundResistance = val)
-            .AddVoltageInput("saturation", val => saturation = val, condition: () => !gainMode)
+            .AddVoltageInput("saturation", val => saturation = val.Real, condition: () => !gainMode)
             .Build();
         
         var gain = OpAmpUtils.CalculateGain(feedbackResistance, groundResistance, false);
@@ -61,11 +61,11 @@ public class NonInvertingSumming {
         double inputVoltage = 0, feedbackResistor = 0, groundResistor = 0, outputVoltage = 0;
         List<double> inputResistors = [];
         new UserInputBuilder()
-            .AddVoltageInput("input", val => inputVoltage = val, postfix: "(the given voltage source)")
+            .AddVoltageInput("input", val => inputVoltage = val.Real, postfix: "(the given voltage source)")
             .AddMultipleResistorInput("input", 2, val => inputResistors = val, postfix: "(starting from the given voltage source)")
             .AddResistorInput("feedback", val => feedbackResistor = val)
             .AddResistorInput("ground", val => groundResistor = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
         
         var gain = OpAmpUtils.CalculateGain(feedbackResistor, groundResistor, false);
@@ -84,10 +84,10 @@ public class NonInvertingSumming {
         List<double> inputVoltages = [];
         List<double> inputResistors = [];
         new UserInputBuilder()
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val)
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)))
             .AddMultipleResistorInput("input", 2, val => inputResistors = val)
             .AddResistorInput("ground", val => groundResistor = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
         
         var sumVoltage = 0.0;
@@ -112,10 +112,10 @@ public class NonInvertingSumming {
         List<double> inputVoltages = [];
         List<double> inputResistors = [];
         new UserInputBuilder()
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val)
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)))
             .AddMultipleResistorInput("input", 2, val => inputResistors = val)
             .AddResistorInput("feedback", val => feedbackResistor = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
         
         var sumVoltage = 0.0;
@@ -141,8 +141,8 @@ public class NonInvertingSumming {
         double outputVoltage = 0;
         List<double> inputVoltages = [];
         new UserInputBuilder()
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)))
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
 
         inputVoltages.Sort();

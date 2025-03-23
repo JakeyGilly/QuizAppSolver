@@ -20,10 +20,10 @@ public class Zener {
     private static void ZenerDiodeReverseBiased() {
         double iBZ = 0, vBZ = 0, Vcc = 0, rDyn = 0, R = 0;
         new UserInputBuilder()
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
-            .AddCurrentInput("Zener breakdown voltage current rating", val => iBZ = val, useSuffix: false)
-            .AddVoltageInput("Zener breakdown", val => vBZ = val)
+            .AddCurrentInput("Zener breakdown voltage current rating", val => iBZ = val.Real, useSuffix: false)
+            .AddVoltageInput("Zener breakdown", val => vBZ = val.Real)
             .AddResistorInput("dynamic resistance", val => rDyn = val, useSuffix: false)
             .Build();
         
@@ -46,11 +46,11 @@ public class Zener {
     private static void ZenerDiodeReverseBiasedParallelWithResistor() {
         double iBZ = 0, vBZ = 0, Vcc = 0, rDyn = 0, R = 0, RZ = 0;
         new UserInputBuilder()
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
             .AddResistorInput("diode", val => RZ = val, postfix: "(the resistor in parallel with the diode)")
-            .AddCurrentInput("Zener breakdown voltage current rating", val => iBZ = val, useSuffix: false)
-            .AddVoltageInput("Zener breakdown", val => vBZ = val)
+            .AddCurrentInput("Zener breakdown voltage current rating", val => iBZ = val.Real, useSuffix: false)
+            .AddVoltageInput("Zener breakdown", val => vBZ = val.Real)
             .AddResistorInput("dynamic resistance", val => rDyn = val, useSuffix: false)
             .Build();
         

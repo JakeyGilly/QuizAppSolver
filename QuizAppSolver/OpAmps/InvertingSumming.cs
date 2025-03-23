@@ -31,10 +31,10 @@ public class InvertingSumming {
             .AddSelection("Do you need to calculate the [green]gain[/] or the [green]output voltage[/]?", 
                 val => gainMode = val, 
                 new Dictionary<bool, string> { { true, "Gain" }, { false, "Output Voltage" } })
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val, condition: () => !gainMode)
-            .AddMultipleResistorInput("input", 2, val => inputResistors = val)
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)), condition: () => !gainMode)
+            .AddMultipleResistorInput("input", 2, val => inputResistors = val, condition: () => !gainMode)
             .AddResistorInput("feedback", val => feedbackResistor = val)
-            .AddVoltageInput("saturation", val => saturation = val, condition: () => !gainMode)
+            .AddVoltageInput("saturation", val => saturation = val.Real, condition: () => !gainMode)
             .Build();
 
         for (int i = 0; i < 2; i++) {
@@ -66,10 +66,10 @@ public class InvertingSumming {
         double inputVoltage = 0, feedbackResistor = 0, outputVoltage = 0;
         List<double> inputResistors = [];
         new UserInputBuilder()
-            .AddVoltageInput("input", val => inputVoltage = val, postfix: "(the given voltage source)")
+            .AddVoltageInput("input", val => inputVoltage = val.Real, postfix: "(the given voltage source)")
             .AddMultipleResistorInput("input", 2, val => inputResistors = val, postfix: "(starting from the given voltage source)")
             .AddResistorInput("feedback", val => feedbackResistor = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
         
         var voltageSource = ((-outputVoltage/feedbackResistor) - (inputVoltage/inputResistors[0])) * inputResistors[1];
@@ -88,9 +88,9 @@ public class InvertingSumming {
         List<double> inputVoltages = [];
         List<double> inputResistors = [];
         new UserInputBuilder()
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val)
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)))
             .AddMultipleResistorInput("input", 2, val => inputResistors = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
         
         var feedbackResistor = -outputVoltage/ (inputVoltages[0] / inputResistors[0] + inputVoltages[1] / inputResistors[1]);
@@ -109,10 +109,10 @@ public class InvertingSumming {
         double inputResistor = 0, feedbackResistor = 0, outputVoltage = 0;
         List<double> inputVoltages = [];
         new UserInputBuilder()
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val, postfix: "(starting from the given resistor)")
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)), postfix: "(starting from the given resistor)")
             .AddResistorInput("input", val => inputResistor = val)
-            .AddResistorInput("feedback", val => feedbackResistor = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddResistorInput("feedback", val => feedbackResistor = val)        
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
         
         var sumOfInputVoltagesDividedByInputResistance = outputVoltage / -feedbackResistor;
@@ -135,8 +135,8 @@ public class InvertingSumming {
         double outputVoltage = 0;
         List<double> inputVoltages = [];
         new UserInputBuilder()
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)))
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
 
         var gain = outputVoltage / inputVoltages[0];

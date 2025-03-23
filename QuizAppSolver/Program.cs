@@ -1,6 +1,8 @@
-﻿using QuizAppSolver;
-using QuizAppSolver.Diodes;
+﻿using QuizAppSolver.Diodes;
 using QuizAppSolver.OpAmps;
+using QuizAppSolver;
+using QuizAppSolver.AC.PassiveNetworks;
+using QuizAppSolver.Phasors;
 using Spectre.Console;
 
 public static class Program {
@@ -12,10 +14,12 @@ public static class Program {
                 Action action = val switch {
                     "Diodes" => Diodes.Diode,
                     "Op-Amps" => OpAmps.OpAmp,
+                    "Phasors" => Phasors.Phasor,
+                    "Passive Networks" => PassiveNetworks.PassiveNetwork,
                     _ => () => { }
                 };
                 action();
-            }, ["Diodes", "Op-Amps"]
+            }, ["Diodes", "Op-Amps", "Phasors", "Passive Networks"]
         ).Build();
     }
 }

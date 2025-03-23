@@ -20,8 +20,8 @@ public class ReverseBiased {
     private static void ReverseBiasedVoltage() {
         double iS = 0, Vcc = 0, R = 0;
         new UserInputBuilder()
-            .AddCurrentInput("saturation", val => iS = val)
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddCurrentInput("saturation", val => iS = val.Real)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
             .Build();
 
@@ -39,10 +39,10 @@ public class ReverseBiased {
     private static void ReverseBiasedInParallelWithResistor() {
         double iS = 0, n = 0, Vcc = 0, R = 0, RD = 0;
         new UserInputBuilder()
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
             .AddResistorInput("diode", val => RD = val, postfix: "(the resistor in parallel with the diode)")
-            .AddCurrentInput("saturation", val => iS = val)
+            .AddCurrentInput("saturation", val => iS = val.Real)
             .AddNumericInput("ideality factor", val => n = val, "2")
             .Build();
         

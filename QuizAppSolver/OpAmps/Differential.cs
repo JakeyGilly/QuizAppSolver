@@ -24,7 +24,7 @@ public class Differential {
         double feedbackResistor = 0, inputResistor = 0;
         List<double> inputVoltages = [];
         new UserInputBuilder()
-            .AddMultipleVoltageInput("input", 2, val => inputVoltages = val)
+            .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)))
             .AddResistorInput("input", val => inputResistor = val)
             .AddResistorInput("feedback", val => feedbackResistor = val)
             .Build();
@@ -44,10 +44,10 @@ public class Differential {
         // assume feedback resistor value is the same
         double inputVoltage = 0, feedbackResistor = 0, inputResistor = 0, outputVoltage = 0;
         new UserInputBuilder()
-            .AddVoltageInput("input", val => inputVoltage = val, postfix: "(the given voltage source)")
+            .AddVoltageInput("input", val => inputVoltage = val.Real, postfix: "(the given voltage source)")
             .AddResistorInput("input", val => inputResistor = val)
             .AddResistorInput("feedback", val => feedbackResistor = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
         
         var gain = feedbackResistor / inputResistor;

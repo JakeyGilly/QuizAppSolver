@@ -25,10 +25,10 @@ public class NonInverting {
             .AddSelection("Do you need to calculate the [green]gain[/] or the [green]output voltage[/]?", 
                 val => gainMode = val, 
                 new Dictionary<bool, string> { { true, "Gain" }, { false, "Output Voltage" } })
-            .AddVoltageInput("input", val => inputVoltage = val, condition: () => !gainMode)
+            .AddVoltageInput("input", val => inputVoltage = val.Real, condition: () => !gainMode)
             .AddResistorInput("ground", val => groundResistor = val)
             .AddResistorInput("feedback", val => feedbackResistor = val)
-            .AddVoltageInput("saturation", val => saturation = val, condition: () => !gainMode)
+            .AddVoltageInput("saturation", val => saturation = val.Real, condition: () => !gainMode)
             .AddSelection("Is the feedback resistor connected to the [green]non-inverting input[/]?",
                 val => isFeedbackNonInverting = val, 
                 new Dictionary<bool, string> { { true, "Yes" }, { false, "No" } }, 
@@ -91,8 +91,8 @@ public class NonInverting {
         var scales = new double[] { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
         double inputVoltage = 0, outputVoltage = 0;
         new UserInputBuilder()
-            .AddVoltageInput("input", val => inputVoltage = val)
-            .AddVoltageInput("output", val => outputVoltage = val)
+            .AddVoltageInput("input", val => inputVoltage = val.Real)
+            .AddVoltageInput("output", val => outputVoltage = val.Real)
             .Build();
         
         double targetRatio = (outputVoltage / inputVoltage) - 1;

@@ -1,50 +1,95 @@
 using Spectre.Console;
-using System;
-using System.Collections.Generic;
+using System.Numerics;
+using System.Text.RegularExpressions;
 
 namespace QuizAppSolver;
 
 public class UserInputBuilder {
-    private readonly List<(string Prompt, string Default, string Postfix, bool UseSuffix, Action<string> Setter, Func<bool>? Condition)> _inputs = new();
-    private readonly List<(string Prompt, int Count, string Default, string Postfix, bool UseSuffix, Action<List<double>> Setter, Func<bool>? Condition)> _listInputs = new();
+    private readonly List<(string Prompt, string Default, string Postfix, bool UseSuffix, Action<string> Setter, Func<bool>? Condition)> _inputs = [];
+    private readonly List<(string Prompt, int Count, string Default, string Postfix, bool UseSuffix, Action<List<string>> Setter, Func<bool>? Condition)> _listInputs = [];
 
-    public UserInputBuilder AddTextInput(string prompt, Action<string> setter, string defaultValue = "", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
-        _inputs.Add((prompt, defaultValue, postfix, useSuffix, setter, condition));
+    public UserInputBuilder AddTextInput(string prompt, Action<Complex> setter, string defaultValue = "0", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _inputs.Add((prompt, defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val)), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddNumericInput(string prompt, Action<double> setter, string defaultValue = "", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _inputs.Add((prompt, defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val).Real), condition));
         return this;
     }
 
-    public UserInputBuilder AddNumericInput(string prompt, Action<double> setter, string defaultValue = "", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+    public UserInputBuilder AddComplexNumericInput(string prompt, Action<Complex> setter, string defaultValue = "", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
         _inputs.Add((prompt, defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val)), condition));
         return this;
     }
     
     public UserInputBuilder AddResistorInput(string prompt, Action<double> setter, string defaultValue = "1k", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
-        _inputs.Add((FormatPrompt(prompt, "resistor value", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val)), condition));
+        _inputs.Add((FormatPrompt(prompt, "resistor value", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val).Real), condition));
         return this;
     }
     
-    public UserInputBuilder AddVoltageInput(string prompt, Action<double> setter, string defaultValue = "12", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+    public UserInputBuilder AddCapacitorInput(string prompt, Action<double> setter, string defaultValue = "1n", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _inputs.Add((FormatPrompt(prompt, "capacitor value", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val).Real), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddInductorInput(string prompt, Action<double> setter, string defaultValue = "10m", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _inputs.Add((FormatPrompt(prompt, "inductor value", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val).Real), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddComponentInput(string prompt, Action<double> setter, string defaultValue = "10m", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _inputs.Add((FormatPrompt(prompt, "component value", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val).Real), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddVoltageInput(string prompt, Action<Complex> setter, string defaultValue = "12", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
         _inputs.Add((FormatPrompt(prompt, "voltage", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val)), condition));
         return this;
     }
     
-    public UserInputBuilder AddCurrentInput(string prompt, Action<double> setter, string defaultValue = "2n", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+    public UserInputBuilder AddCurrentInput(string prompt, Action<Complex> setter, string defaultValue = "2n", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
         _inputs.Add((FormatPrompt(prompt, "current", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val)), condition));
         return this;
     }
     
-    public UserInputBuilder AddMultipleInputs(string prompt, int count, Action<List<double>> setter, string defaultValue = "", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
-        _listInputs.Add((prompt, count, defaultValue, postfix, useSuffix, setter, condition));
+    public UserInputBuilder AddFrequencyInput(string prompt, Action<Complex> setter, string defaultValue = "1k", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _inputs.Add((FormatPrompt(prompt, "frequency", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val)), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddComplexImpedanceInput(string prompt, Action<Complex> setter, string defaultValue = "1k@90", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _inputs.Add((FormatPrompt(prompt, "complex impedance", useSuffix), defaultValue, postfix, useSuffix, val => setter(UnitConverter.ConvertUnits(val)), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddMultipleInputs(string prompt, int count, Action<List<Complex>> setter, string defaultValue = "", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _listInputs.Add((prompt, count, defaultValue, postfix, useSuffix, val => setter(val.ConvertAll(UnitConverter.ConvertUnits)), condition));
         return this;
     }
     
     public UserInputBuilder AddMultipleResistorInput(string prompt, int count, Action<List<double>> setter, string defaultValue = "1k", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
-        _listInputs.Add((FormatPrompt(prompt, "resistor value", useSuffix), count, defaultValue, postfix, useSuffix, setter, condition));
+        _listInputs.Add((FormatPrompt(prompt, "resistor value", useSuffix), count, defaultValue, postfix, useSuffix, val => setter(val.ConvertAll(v => UnitConverter.ConvertUnits(v).Real)), condition));
         return this;
     }
     
-    public UserInputBuilder AddMultipleVoltageInput(string prompt, int count, Action<List<double>> setter, string defaultValue = "12", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
-        _listInputs.Add((FormatPrompt(prompt, "voltage", useSuffix), count, defaultValue, postfix, useSuffix, setter, condition));
+    public UserInputBuilder AddMultipleCapacitorInput(string prompt, int count, Action<List<double>> setter, string defaultValue = "1n", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _listInputs.Add((FormatPrompt(prompt, "capacitor value", useSuffix), count, defaultValue, postfix, useSuffix, val => setter(val.ConvertAll(v => UnitConverter.ConvertUnits(v).Real)), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddMultipleInductorInput(string prompt, int count, Action<List<double>> setter, string defaultValue = "10m", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _listInputs.Add((FormatPrompt(prompt, "inductor value", useSuffix), count, defaultValue, postfix, useSuffix, val => setter(val.ConvertAll(v => UnitConverter.ConvertUnits(v).Real)), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddMultipleComponentInput(string prompt, int count, Action<List<double>> setter, string defaultValue = "10m", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _listInputs.Add((FormatPrompt(prompt, "component value", useSuffix), count, defaultValue, postfix, useSuffix, val => setter(val.ConvertAll(v => UnitConverter.ConvertUnits(v).Real)), condition));
+        return this;
+    }
+    
+    public UserInputBuilder AddMultipleVoltageInput(string prompt, int count, Action<List<Complex>> setter, string defaultValue = "12", string postfix = "", bool useSuffix = true, Func<bool>? condition = null) {
+        _listInputs.Add((FormatPrompt(prompt, "voltage", useSuffix), count, defaultValue, postfix, useSuffix, val => setter(val.ConvertAll(UnitConverter.ConvertUnits)), condition));
         return this;
     }
 
@@ -89,7 +134,7 @@ public class UserInputBuilder {
 
         foreach (var (prompt, count, defaultValue, postfix, useSuffix, setter, condition) in _listInputs) {
             if (condition != null && !condition()) continue;
-            List<double> inputs = [];
+            List<string> inputs = [];
             for (int i = 0; i < count; i++) {
                 string value = AnsiConsole.Prompt(
                     new TextPrompt<string>($"Enter the [green]{prompt} {i + 1}[/]{postfix}")
@@ -97,7 +142,7 @@ public class UserInputBuilder {
                         .DefaultValue(defaultValue)
                         .DefaultValueStyle("grey")
                 );
-                inputs.Add(UnitConverter.ConvertUnits(value));
+                inputs.Add(value);
             }
             setter(inputs);
         }

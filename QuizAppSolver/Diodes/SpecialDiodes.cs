@@ -10,9 +10,9 @@ public class SpecialDiodes {
         double iS = 0, n = 0, Vcc = 0, R = 0;
         var diodes = new[] { "Forward Biased", "Reverse Biased" };
         new UserInputBuilder()
-            .AddVoltageInput("supply", val => Vcc = val)
+            .AddVoltageInput("supply", val => Vcc = val.Real)
             .AddResistorInput("", val => R = val)
-            .AddCurrentInput("saturation current", val => iS = val)
+            .AddCurrentInput("saturation current", val => iS = val.Real)
             .AddNumericInput("ideality factor", val => n = val, "2")
             .Build();
         
