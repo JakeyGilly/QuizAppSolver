@@ -1,27 +1,10 @@
 using System.Numerics;
-using QuizAppSolver.AC.PassiveNetworks.MoreComponents;
 using Spectre.Console;
-using static QuizAppSolver.AC.PassiveNetworks.TwoComponents.IoHandler;
 
-namespace QuizAppSolver.AC.PassiveNetworks;
+namespace QuizAppSolver.AC.PassiveNetworks.RCandRL;
 
-public class RCandRl {
-    public static void RCandRlMenu() {
-        new UserInputBuilder().AddSelection("Select the [green]RC type[/]",
-            val => {
-                Action action = val switch {
-                    "2 Components" => HandleTwoComponents,
-                    "3 or more Components" => MoreComponents,
-                    "Arrange Circuit (2 or 3 Components)" => ArrangeCircuit,
-                    "Back" => Program.Main,
-                    _ => () => { }
-                };
-                action();
-            }, ["2 Components", "3 or more Components", "Arrange Circuit (2 or 3 Components)", "Back"]
-        ).Build();
-    }
-    
-    private static void ArrangeCircuit() {
+public class ArrangeCircuit() {
+    public static void ArrangeRLandRC() {
         int numResistors = 0, numComponents = 0, numRequiredComponents = 0;
         double frequency = 0;
         Complex requiredImpedance = 0;
@@ -38,7 +21,7 @@ public class RCandRl {
             .AddNumericInput("How many resistors are there?", val => numResistors = (int)Math.Floor(val))
             .AddNumericInput("How many components are there?", val => numComponents = (int)Math.Floor(val))
             .Build();
-        
+
         if (numResistors > 0) {
             new UserInputBuilder()
                 .AddMultipleResistorInput("Enter resistor values:", numResistors, val => resistances = val)
@@ -50,7 +33,7 @@ public class RCandRl {
                 .AddMultipleComponentInput("Enter component values:", numComponents, val => componentValues = val)
                 .Build();
         }
-        
+
         List<Complex> componentImpedances = [];
         for (int i = 0; i < numComponents; i++) {
             componentImpedances.Add(componentType switch {
@@ -59,13 +42,13 @@ public class RCandRl {
                 _ => throw new ArgumentException("Invalid component type")
             });
         }
-        
+
 
         void TwoComponents() {
             List<double> results;
             double bestAbsDiff = double.MaxValue;
             string bestConfig = "";
-            if (numComponents != 2) return; 
+            if (numRequiredComponents != 2) return;
             if (numResistors == 1 && numComponents == 1) {
                 results = OneResistorOneComponent(resistances, componentImpedances);
                 CompareResults(results, "One Resistor, One Component", ref bestAbsDiff, ref bestConfig);
@@ -82,14 +65,14 @@ public class RCandRl {
                 }
             } else if (numResistors == 1 && numComponents > 1) {
                 for (int i = 0; i < numComponents; i++) {
-                    results = OneResistorOneComponent(resistances, [componentValues[i]]);
+                    results = OneResistorOneComponent(resistances, [componentImpedances[i]]);
                     CompareResults(results, $"Resistor {UnitConverter.ConvertToUnit(resistances[0])}, Component {UnitConverter.ConvertToUnit(componentValues[i])}", ref bestAbsDiff, ref bestConfig);
                 }
             } else if (numResistors == 0 && numComponents > 2) {
                 for (int i = 0; i < numComponents; i++) {
                     for (int j = 1; j < numComponents; j++) {
                         if (j == componentValues.Count) break;
-                        results = TwoComponents([componentValues[i], componentValues[j]]);
+                        results = TwoComponents([componentImpedances[i], componentImpedances[j]]);
                         CompareResults(results, $"Component {UnitConverter.ConvertToUnit(componentValues[i])}, Component {UnitConverter.ConvertToUnit(componentValues[j])}", ref bestAbsDiff, ref bestConfig);
                     }
                 }
@@ -105,21 +88,20 @@ public class RCandRl {
 
             Console.WriteLine($"Best configuration: {bestConfig}");
             Console.WriteLine($"Best Abs Diff: {bestAbsDiff}");
-            
+
             void CompareResults(List<double> results, string config, ref double bestAbsDiff, ref string bestConfig) {
                 double seriesAbsDiff = results[0];
                 double parallelAbsDiff = results[1];
-
                 if (seriesAbsDiff < bestAbsDiff) {
                     bestAbsDiff = seriesAbsDiff;
                     bestConfig = config + " (Series)";
                 }
-
                 if (parallelAbsDiff < bestAbsDiff) {
                     bestAbsDiff = parallelAbsDiff;
                     bestConfig = config + " (Parallel)";
                 }
             }
+
             List<double> TwoResistors(List<double> resistances) {
                 if (resistances.Count != 2) throw new ArgumentException("Two resistors are required");
                 // Series Configuration
@@ -142,7 +124,7 @@ public class RCandRl {
                 // Parallel Configuration
                 Complex parallelImpedance = 1 / (1 / componentImpedances[0] + 1 / componentImpedances[1]);
                 double parallelAbsDiff = Complex.Abs(parallelImpedance - requiredImpedance);
-                
+
                 return [seriesAbsDiff, parallelAbsDiff];
             }
 
@@ -165,7 +147,7 @@ public class RCandRl {
             double bestAbsDiff = double.MaxValue;
             string bestConfig = "";
             string bestDescription = "";
-            if (numComponents != 3) return;
+            if (numRequiredComponents != 3) return;
             if (numResistors == 1 && numComponents == 2) {
                 Console.WriteLine("One Resistor, Two Components");
                 results = OneResistorTwoComponents(resistances, componentImpedances);
@@ -227,7 +209,7 @@ public class RCandRl {
                     }
                 }
             }
-            
+
             Console.WriteLine($"Best configuration: {bestConfig}");
             Console.WriteLine($"Best Abs Diff: {bestAbsDiff}");
             Console.WriteLine($"Best Description: {bestDescription}");
@@ -253,13 +235,13 @@ public class RCandRl {
                         1 / (1 / res + 1 / componentImpedances[1]) + componentImpedances[0]),
                     ("Resistor in series with (Component 1 in parallel with Component 2)",
                         res + 1 / (1 / componentImpedances[0] + 1 / componentImpedances[1])),
-                    ("Component 2 in parallel with (Component 1 + Resistor in series)", 
+                    ("Component 2 in parallel with (Component 1 + Resistor in series)",
                         1 / (1 / componentImpedances[1] + 1 / (componentImpedances[0] + res))),
                     ("Component 1 in parallel with (Component 2 + Resistor in series)",
                         1 / (1 / componentImpedances[0] + 1 / (componentImpedances[1] + res))),
-                    ("Resistor in parallel with Component 1 and Component 2",
+                    ("All components in parallel",
                         1 / (1 / res + 1 / componentImpedances[0] + 1 / componentImpedances[1])),
-                    ("Resistor in series with Component 1 and Component 2",
+                    ("ALl components in series",
                         res + componentImpedances[0] + componentImpedances[1])
                 };
 
@@ -279,16 +261,16 @@ public class RCandRl {
                         1 / (1 / componentImpedances[0] + 1 / resistances[1]) + resistances[0]),
                     ("Component in series with (Resistor 1 in parallel with Resistor 2)",
                         componentImpedances[0] + 1 / (1 / resistances[0] + 1 / resistances[1])),
-                    ("Resistor 2 in parallel with (Resistor 1 + Component in series)", 
+                    ("Resistor 2 in parallel with (Resistor 1 + Component in series)",
                         1 / (1 / resistances[1] + 1 / (resistances[0] + componentImpedances[0]))),
                     ("Resistor 1 in parallel with (Resistor 2 + Component in series)",
                         1 / (1 / resistances[0] + 1 / (resistances[1] + componentImpedances[0]))),
-                    ("Component in parallel with Resistor 1 and Resistor 2",
+                    ("All components in parallel",
                         1 / (1 / componentImpedances[0] + 1 / resistances[0] + 1 / resistances[1])),
-                    ("Component in series with Resistor 1 and Resistor 2",
+                    ("All components in series",
                         componentImpedances[0] + resistances[0] + resistances[1])
                 };
-                
+
                 // Find the best match
                 var bestMatch = circuitOptions.MinBy(option => Complex.Abs(option.impedance - requiredImpedance));
                 return bestMatch;
@@ -299,7 +281,7 @@ public class RCandRl {
                 var circuitOptions = new (string description, Complex impedance)[] {
                     ("Component 1 in parallel with (Component 2 + Component 3 in series)",
                         1 / (1 / componentImpedances[0] + 1 / (componentImpedances[1] + componentImpedances[2]))),
-                    ("Component 3 in parallel with (Component 2 + Component 1 in series)", 
+                    ("Component 3 in parallel with (Component 2 + Component 1 in series)",
                         1 / (1 / componentImpedances[2] + 1 / (componentImpedances[1] + componentImpedances[0]))),
                     ("Component 2 in parallel with (Component 1 + Component 3 in series)",
                         1 / (1 / componentImpedances[1] + 1 / (componentImpedances[0] + componentImpedances[2]))),
@@ -311,9 +293,9 @@ public class RCandRl {
                         1 / (1 / componentImpedances[0] + 1 / (componentImpedances[1] + componentImpedances[2]))),
                     ("Component 1 in series with (Component 2 in parallel with Component 3)",
                         componentImpedances[0] + 1 / (1 / componentImpedances[1] + 1 / componentImpedances[2])),
-                    ("Component 1 in parallel with Component 2 and Component 3",
+                    ("All components in parallel",
                         1 / (1 / componentImpedances[0] + 1 / componentImpedances[1] + 1 / componentImpedances[2])),
-                    ("Component 1 in series with Component 2 and Component 3",
+                    ("All components in series",
                         componentImpedances[0] + componentImpedances[1] + componentImpedances[2])
                 };
 
@@ -321,13 +303,13 @@ public class RCandRl {
                 var bestMatch = circuitOptions.MinBy(option => Complex.Abs(option.impedance - requiredImpedance));
                 return bestMatch;
             }
-            
+
             (string description, Complex impedance) ThreeResistors(List<double> resistances) {
                 if (resistances.Count != 3) throw new ArgumentException("Three resistors are required");
                 var circuitOptions = new (string description, Complex impedance)[] {
                     ("Resistor 1 in parallel with (Resistor 2 + Resistor 3 in series)",
                         1 / (1 / resistances[0] + 1 / (resistances[1] + resistances[2]))),
-                    ("Resistor 3 in parallel with (Resistor 2 + Resistor 1 in series)", 
+                    ("Resistor 3 in parallel with (Resistor 2 + Resistor 1 in series)",
                         1 / (1 / resistances[2] + 1 / (resistances[1] + resistances[0]))),
                     ("Resistor 2 in parallel with (Resistor 1 + Resistor 3 in series)",
                         1 / (1 / resistances[1] + 1 / (resistances[0] + resistances[2]))),
@@ -339,37 +321,22 @@ public class RCandRl {
                         1 / (1 / resistances[0] + 1 / (resistances[1] + resistances[2]))),
                     ("Resistor 1 in series with (Resistor 2 in parallel with Resistor 3)",
                         resistances[0] + 1 / (1 / resistances[1] + 1 / resistances[2])),
-                    ("Resistor 1 in parallel with Resistor 2 and Resistor 3",
+                    ("All resistors in parallel",
                         1 / (1 / resistances[0] + 1 / resistances[1] + 1 / resistances[2])),
-                    ("Resistor 1 in series with Resistor 2 and Resistor 3",
+                    ("All resistors in series",
                         resistances[0] + resistances[1] + resistances[2])
                 };
-                
+
                 // Find the best match
                 var bestMatch = circuitOptions.MinBy(option => Complex.Abs(option.impedance - requiredImpedance));
                 return bestMatch;
             }
         }
-        
+
         TwoComponents();
         ThreeComponents();
 
         bool menu = AnsiConsole.Confirm("Back to the main menu");
         if (menu) Program.Main();
-    }
-    
-    public static void MoreComponents() {
-        int numResistors = 0, numComponents = 0;
-        new UserInputBuilder()
-            .AddNumericInput("number of resistors", val => numResistors = (int)Math.Floor(val))
-            .AddNumericInput("number of components", val => numComponents = (int)Math.Floor(val))
-            .Build();
-
-        if (numResistors == 2 && numComponents == 1) {
-            IoHandler.HandleTwoResistorsOneComponent();
-        }
-        if (numComponents == 2 && numResistors == 1) {
-            IoHandler.HandleTwoComponentsOneResistor();
-        }
     }
 }

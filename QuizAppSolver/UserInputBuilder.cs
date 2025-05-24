@@ -1,6 +1,5 @@
 using Spectre.Console;
 using System.Numerics;
-using System.Text.RegularExpressions;
 
 namespace QuizAppSolver;
 

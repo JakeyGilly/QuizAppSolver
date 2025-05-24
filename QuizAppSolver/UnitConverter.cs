@@ -34,6 +34,7 @@ public class UnitConverter {
             "u" => 1e-6,
             "n" => 1e-9,
             "p" => 1e-12,
+            "f" => 1e-15,
             "k" => 1e3,
             "M" => 1e6,
             _ => 1.0
@@ -48,8 +49,8 @@ public class UnitConverter {
     }
 
     public static string ConvertToUnit(Complex value, bool polar = false) {
-        string[] units = { "p", "n", "µ", "m", "", "k", "M" };
-        double[] multipliers = { 1e-12, 1e-9, 1e-6, 1e-3, 1, 1e3, 1e6 };
+        string[] units = { "f", "p", "n", "µ", "m", "", "k", "M" };
+        double[] multipliers = { 1e-15, 1e-12, 1e-9, 1e-6, 1e-3, 1, 1e3, 1e6 };
 
         string FormatComponent(double component) {
             for (int i = multipliers.Length - 1; i >= 0; i--) {

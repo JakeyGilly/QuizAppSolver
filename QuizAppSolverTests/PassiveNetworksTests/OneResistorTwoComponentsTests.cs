@@ -8,6 +8,7 @@ namespace QuizAppSolverTests.PassiveNetworksTests;
 
 public class OneResistorTwoComponentsTests {
     [TestCase(Normal, new[] { 10e-6, 10e-6 }, 68, 70, 0, 0, Capacitor, 459.8, -81.5)]
+    [TestCase(Normal, new[] { 1e-9, 1e-9 }, 18e3, 10e3, 0, 0, Capacitor, 36.57e3, -60.5)]
     [TestCase(MissingOneComponent, new[] { 100e-9 }, 1e3, 3e3, 1.458e3, -46.7, Capacitor, 100e-9, 0)]
     [TestCase(MissingOneComponent, new[] { 47e-15 }, 390e3, 9e6, 629.5e3, -51.7, Capacitor, 150e-15, 0)]
     [TestCase(MissingOneComponent, new[] { 33e-12 }, 6.8e3, 2e6, 7.943e3, -31.1, Capacitor, 47e-12, 0)]
@@ -20,9 +21,9 @@ public class OneResistorTwoComponentsTests {
     [TestCase(MissingOneComponent, new[] { 100e-3 }, 820e3, 1e6, 1.501e6, 56.9, Inductor, 100e-3, 0)]
     [TestCase(MissingOneComponent, new[] { 22.0 }, 150e3, 3e3, 1.703e6, 84.9, Inductor, 68, 0)]
     [TestCase(MissingOneComponent, new[] { 220e-6 }, 82, 90e3, 398.7, 78.1, Inductor, 470e-6, 0)]
-    public void TestSeries(ConfigTypes type, double[] componentValue, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle) {
+    public void TestSeries(ConfigTypes type, double[] componentValues, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle) {
         var impedance = Complex.FromPolarCoordinates(impedanceMagnitude, impedanceAngle / 180 * Math.PI);
-        Complex result = CalculateSeries(type, componentValue.ToList(), resistance, frequency, impedance, componentType);
+        Complex result = CalculateSeries(type, componentValues.ToList(), resistance, frequency, impedance, componentType);
         var angleTolerance = Math.Abs(result.Phase * 10e-3); // tolerance of 1%
         var tolerance = type switch {
             Normal => result.Magnitude * 5e-3, // tolerance of 0.5%
@@ -53,6 +54,7 @@ public class OneResistorTwoComponentsTests {
     [TestCase(Normal, new[] { 330e-9, 680e-9 }, 820, 1e3, 0, 0, Capacitor, 154.7, -79.1)]
     [TestCase(MissingOneResistor, new[] { 220e-9, 150e-9 }, 0, 20, 20.51e3, -72.4, Capacitor, 68e3, 0)]
     [TestCase(MissingOneComponent, new[] { 150e-9 }, 560e3, 10, 91.29e3, -80.6, Capacitor, 22e-9, 0)]
+    [TestCase(MissingOneComponent, new[] { 6.8e-9 }, 6.8e3, 3e3, 2.864e3, -65.1, Capacitor, 10e-9, 0)]
     [TestCase(Normal, new[] { 1, 330e-3 }, 68e3, 20e3, 0, 0, Inductor, 28.34e3, 65.4)]
     [TestCase(Normal, new[] { 100e-3, 47e-3 }, 68, 600, 0, 0, Inductor, 59.23, 29.4)]
     [TestCase(Normal, new[] { 6.8, 1.5 }, 330e3, 20e3, 0, 0, Inductor, 139.9e3, 64.9)]
@@ -68,9 +70,9 @@ public class OneResistorTwoComponentsTests {
     [TestCase(MissingOneComponent, new[] { 10e-3 }, 12e3, 400e3, 5.533e3, 62.5, Inductor, 3.3e-3, 0)]
     [TestCase(MissingOneComponent, new[] { 4.7 }, 1.5e6, 10e3, 173.4e3, 83.4, Inductor, 6.8, 0)]
     [TestCase(MissingOneComponent, new[] { 100e-6 }, 470, 1e6, 318, 47.4, Inductor, 220e-6, 0)]
-    public void TestParallel(ConfigTypes type, double[] componentValue, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle) {
+    public void TestParallel(ConfigTypes type, double[] componentValues, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle) {
         var impedance = Complex.FromPolarCoordinates(impedanceMagnitude, impedanceAngle / 180 * Math.PI);
-        Complex result = CalculateParallel(type, componentValue.ToList(), resistance, frequency, impedance, componentType);
+        Complex result = CalculateParallel(type, componentValues.ToList(), resistance, frequency, impedance, componentType);
         var angleTolerance = Math.Abs(result.Phase * 10e-3); // tolerance of 1%
         var tolerance = type switch {
             Normal => result.Magnitude * 5e-3, // tolerance of 0.5%
@@ -116,9 +118,9 @@ public class OneResistorTwoComponentsTests {
     [TestCase(MissingOneComponent, new[] { 100e-15 }, 470e3, 9e6, 528.3e3, -39.9, Capacitor, 15e-15, 0, false)] // these are repeated
     [TestCase(MissingOneComponent, new[] { 3.3e-9 }, 820, 20e3, 1.072e3, -46.7, Capacitor, 15e-9, 0, true)] // these are repeated
     [TestCase(MissingOneComponent, new[] { 15e-15 }, 470e3, 9e6, 528.3e3, -39.9, Capacitor, 100e-15, 0, true)] // these are repeated
-    public void TestComponentSeriesComponentResParallel(ConfigTypes type, double[] componentValue, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle, bool isMissingComponentInSeries) { 
+    public void TestComponentSeriesComponentResParallel(ConfigTypes type, double[] componentValues, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle, bool isMissingComponentInSeries) { 
         var impedance = Complex.FromPolarCoordinates(impedanceMagnitude, impedanceAngle / 180 * Math.PI);
-        Complex result = CalculateComponentSeriesComponentResParallel(type, componentValue.ToList(), resistance, frequency, impedance, componentType, isMissingComponentInSeries);
+        Complex result = CalculateComponentSeriesComponentResParallel(type, componentValues.ToList(), resistance, frequency, impedance, componentType, isMissingComponentInSeries);
         var angleTolerance = Math.Abs(result.Phase * 10e-3); // tolerance of 1%
         var tolerance = type switch {
             Normal => result.Magnitude * 5e-3, // tolerance of 0.5%
@@ -157,11 +159,12 @@ public class OneResistorTwoComponentsTests {
     [TestCase(MissingOneComponent, new[] { 680e-3 }, 220e3, 60e3, 224.5e3, 64.4, Inductor, 1.5, 0, false)]
     [TestCase(Normal, new[] { 47e-15, 150e-15 }, 120e3, 8e6, 0, 0, Capacitor, 102.6e3, -86.35, false)]
     [TestCase(MissingOneResistor, new[] { 47e-15, 150e-15 }, 0, 8e6, 102.6e3, -86.35, Capacitor, 120e3, 0, false)] // this is repeated
+    [TestCase(MissingOneComponent, new[] { 22e-12 }, 1.5e3, 10e6, 605.3, -67.4, Capacitor, 47e-12, 0, true)]
     [TestCase(MissingOneComponent, new[] { 47e-15 }, 120e3, 8e6, 102.6e3, -86.35, Capacitor, 150e-15, 0, false)] // this is repeated
     [TestCase(MissingOneComponent, new[] { 150e-15}, 120e3, 8e6, 102.6e3, -86.35, Capacitor, 47e-15, 0, true)] // this is repeated
-    public void TestComponentParallelComponentResSeries(ConfigTypes type, double[] componentValue, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle, bool isMissingComponentInSeries) {
+    public void TestComponentParallelComponentResSeries(ConfigTypes type, double[] componentValues, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle, bool isMissingComponentInSeries) {
         var impedance = Complex.FromPolarCoordinates(impedanceMagnitude, impedanceAngle / 180 * Math.PI);
-        Complex result = CalculateComponentParallelComponentResSeries(type, componentValue.ToList(), resistance, frequency, impedance, componentType, isMissingComponentInSeries);
+        Complex result = CalculateComponentParallelComponentResSeries(type, componentValues.ToList(), resistance, frequency, impedance, componentType, isMissingComponentInSeries);
         var angleTolerance = Math.Abs(result.Phase * 10e-3); // tolerance of 1%
         var tolerance = type switch {
             Normal => result.Magnitude * 5e-3, // tolerance of 0.5%
@@ -199,11 +202,13 @@ public class OneResistorTwoComponentsTests {
     [TestCase(Normal, new[] { 2.2e-9, 4.7e-9 }, 27e3, 3e3, 0, 0, Capacitor, 21.47e3, -37.3)]
     [TestCase(Normal, new[] { 330e-12, 1e-9 }, 22e3, 9e3, 0, 0, Capacitor, 21.02e3, -17.2)]
     [TestCase(Normal, new[] { 220e-12, 68e-12 }, 270e3, 2e3, 0, 0, Capacitor, 265.9e3, -10)]
+    [TestCase(Normal, new[] { 68e-9, 470e-9 }, 3.9e3, 200, 0, 0, Capacitor, 3.745e3, -16.2)]
+    [TestCase(MissingOneResistor, new[] { 6.8e-6, 1e-6 }, 0, 50, 1.884e3, -31.1, Capacitor, 2.2e3, 0)]
     [TestCase(MissingOneResistor, new[] { 220e-12, 68e-12 }, 0, 2e3, 265.9e3, -10, Capacitor, 270e3, 0)] // this is repeated
     [TestCase(MissingOneComponent, new[] { 220e-12 }, 270e3, 2e3, 265.9e3, -10, Capacitor, 68e-12, 0)] // this is repeated
-    public void TestResParallelComponentSeries(ConfigTypes type, double[] componentValue, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle) {
+    public void TestResParallelComponentSeries(ConfigTypes type, double[] componentValues, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle) {
         var impedance = Complex.FromPolarCoordinates(impedanceMagnitude, impedanceAngle / 180 * Math.PI);
-        Complex result = CalculateResParallelComponentSeries(type, componentValue.ToList(), resistance, frequency, impedance, componentType);
+        Complex result = CalculateResParallelComponentSeries(type, componentValues.ToList(), resistance, frequency, impedance, componentType);
         var angleTolerance = Math.Abs(result.Phase * 10e-3); // tolerance of 1%
         var tolerance = type switch {
             Normal => result.Magnitude * 5e-3, // tolerance of 0.5%
@@ -237,9 +242,9 @@ public class OneResistorTwoComponentsTests {
     [TestCase(MissingOneResistor, new[] { 100e-9, 22e-9 }, 0, 400, 5.084e3, -39.9, Capacitor, 3.9e3, 0)] // this is repeated
     [TestCase(MissingOneComponent, new[] { 470e-9 }, 39, 3e3, 86.21, -63.1, Capacitor, 220e-9, 0)] // this is repeated
     [TestCase(MissingOneComponent, new[] { 220e-9 }, 39, 3e3, 86.21, -63.1, Capacitor, 470e-9, 0)] // this is repeated
-    public void TestResSeriesComponentParallel(ConfigTypes type, double[] componentValue, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle) {
+    public void TestResSeriesComponentParallel(ConfigTypes type, double[] componentValues, double resistance, double frequency, double impedanceMagnitude, double impedanceAngle, ComponentType componentType, double expectedResultMagnitude, double expectedResultAngle) {
         var impedance = Complex.FromPolarCoordinates(impedanceMagnitude, impedanceAngle / 180 * Math.PI);
-        Complex result = CalculateResSeriesComponentParallel(type, componentValue.ToList(), resistance, frequency, impedance, componentType);
+        Complex result = CalculateResSeriesComponentParallel(type, componentValues.ToList(), resistance, frequency, impedance, componentType);
         var angleTolerance = Math.Abs(result.Phase * 10e-3); // tolerance of 1%
         var tolerance = type switch {
             Normal => result.Magnitude * 5e-3, // tolerance of 0.5%

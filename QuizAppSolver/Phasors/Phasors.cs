@@ -8,46 +8,14 @@ public class Phasors {
         new UserInputBuilder().AddSelection("Select the [green]Phasor type[/]",
             val => {
                 Action action = val switch {
-                    "Add/Subtract" => AddPhasors,
                     "Phasor A and B to Phasor" => PhasorAAndBToPhasor,
-                    "Radians to Degrees" => RadiansToDegrees,
+                    "Time to Phase" => TimeToPhase,
                     "Back" => Program.Main,
                     _ => () => { }
                 };
                 action();
-            }, ["Add/Subtract", "Phasor A and B to Phasor", "Radians to Degrees", "Back"]
+            }, ["Phasor A and B to Phasor", "Time to Phase", "Back"]
         ).Build();
-    }
-
-    public static void AddPhasors() {
-        Complex phasor1 = new Complex(0, 0);
-        Complex phasor2 = new Complex(0, 0);
-        bool add = true;
-        new UserInputBuilder()
-            .AddComplexNumericInput("value of the first phasor", val => phasor1 = new Complex(val.Real, val.Imaginary), "1@0")
-            .AddComplexNumericInput("value of the second phasor", val => phasor2 = new Complex(val.Real, val.Imaginary), "1@0")
-            .AddSelection("Select the [green]operation[/]",
-                val => {
-                    add = val == "Add";
-                }, ["Add", "Subtract", "Back"]
-            ).Build();
-        
-        var result = add ? phasor1 + phasor2 : phasor1 - phasor2;
-        AnsiConsole.WriteLine($"The result is {UnitConverter.ConvertToUnit(result, true)}");
-        bool menu = AnsiConsole.Confirm("Back to the main menu");
-        if (menu) Program.Main();
-    }
-    
-    public static void RadiansToDegrees() {
-        double radians = 0;
-        new UserInputBuilder()
-            .AddNumericInput("radians", val => radians = val)
-            .Build();
-        
-        var degrees = radians * 180 / Math.PI;
-        AnsiConsole.WriteLine($"The result is {UnitConverter.ConvertToUnit(degrees)}");
-        bool menu = AnsiConsole.Confirm("Back to the main menu");
-        if (menu) Program.Main();
     }
     
     public static void PhasorAAndBToPhasor() {
@@ -92,6 +60,29 @@ public class Phasors {
             magnitudeTolerance += 0.1;
             angleTolerance += 2;
         }
+        bool menu = AnsiConsole.Confirm("Back to the main menu");
+        if (menu) Program.Main();
+    }
+
+    public static void TimeToPhase() {
+        double timeOfPeakA = 0;
+        double frequency = 0;
+        new UserInputBuilder()
+            .AddFrequencyInput("", val => frequency = val.Real)
+            .AddNumericInput("time of the peak of the signal", val => timeOfPeakA = val, "1000u")
+            .Build();
+        double period = 1 / frequency;
+        double timeDifference = period - timeOfPeakA;
+
+        // Normalize to range [0, period)
+        timeDifference = (timeDifference + period) % period;
+
+        double phaseFraction = timeDifference / period;
+        double phase = phaseFraction * 360;
+
+        // Round to nearest 15°
+        phase = Math.Round(phase / 15) * 15;
+        AnsiConsole.WriteLine($"The phase is {UnitConverter.ConvertToUnit(phase)} degrees");
         bool menu = AnsiConsole.Confirm("Back to the main menu");
         if (menu) Program.Main();
     }
