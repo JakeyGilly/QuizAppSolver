@@ -5,10 +5,9 @@ namespace QuizAppSolver.OpAmps;
 
 public class NonInvertingSumming {
     public static void NonInvertingSummingMenu() {
-        string option = "";
         new UserInputBuilder().AddSelection("Select the [green]non-inverting amplifier type[/]",
             val => {
-                    Action action = option switch {
+                    Action action = val switch {
                         "Voltage" => NonInvertingSummingVoltage,
                         "Missing One Voltage Source" => NonInvertingSummingMissingSource,
                         "Missing Rf" => NonInvertingSummingMissingRf,

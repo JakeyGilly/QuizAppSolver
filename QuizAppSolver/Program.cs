@@ -1,7 +1,9 @@
 ﻿using QuizAppSolver.Diodes;
 using QuizAppSolver.OpAmps;
 using QuizAppSolver;
+using QuizAppSolver.AC.Dividers;
 using QuizAppSolver.AC.PassiveNetworks;
+using QuizAppSolver.OpAmpBandwidths;
 using QuizAppSolver.Phasors;
 using Spectre.Console;
 
@@ -16,10 +18,12 @@ public static class Program {
                     "Op-Amps" => OpAmps.OpAmp,
                     "Phasors" => Phasors.Phasor,
                     "Passive Networks" => PassiveNetworks.PassiveNetwork,
+                    "Dividers" => Dividers.DividersMenu,
+                    "Op-Amp Bandwidths" => OpAmpBandwidths.OpAmpBandwithsMenu,
                     _ => () => { }
                 };
                 action();
-            }, ["Diodes", "Op-Amps", "Phasors", "Passive Networks"]
+            }, ["Diodes", "Op-Amps", "Phasors", "Passive Networks", "Dividers", "Op-Amp Bandwidths"]
         ).Build();
     }
 }

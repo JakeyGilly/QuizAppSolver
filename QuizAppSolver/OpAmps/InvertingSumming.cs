@@ -17,7 +17,7 @@ public class InvertingSumming {
                         _ => () => { }
                     };
                     action();
-                }, ["Voltage", "Missing One Voltage Source", "Missing Rf", "Missing One Rin", "Configure Resistors (E12)", "Configure Resistors (E12)", "Back"]
+                }, ["Voltage", "Missing One Voltage Source", "Missing Rf", "Missing One Rin", "Configure Resistors (E12)", "Back"]
             ).Build();
     }
     
@@ -27,12 +27,13 @@ public class InvertingSumming {
         double feedbackResistor = 0, saturation = 0;
         List<double> inputResistors = [];
         List<double> inputVoltages = [];
+        
         new UserInputBuilder()
             .AddSelection("Do you need to calculate the [green]gain[/] or the [green]output voltage[/]?", 
                 val => gainMode = val, 
                 new Dictionary<bool, string> { { true, "Gain" }, { false, "Output Voltage" } })
             .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)), condition: () => !gainMode)
-            .AddMultipleResistorInput("input", 2, val => inputResistors = val, condition: () => !gainMode)
+            .AddMultipleResistorInput("input", 2, val => inputResistors = val)
             .AddResistorInput("feedback", val => feedbackResistor = val)
             .AddVoltageInput("saturation", val => saturation = val.Real, condition: () => !gainMode)
             .Build();
@@ -133,7 +134,7 @@ public class InvertingSumming {
         var e12 = new[] { 1.0, 1.2, 1.5, 1.8, 2.2, 2.7, 3.3, 3.9, 4.7, 5.6, 6.8, 8.2 };
         var scales = new double[] { 1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000 };
         double outputVoltage = 0;
-        List<double> inputVoltages = [];
+        List<double> inputVoltages = new();
         new UserInputBuilder()
             .AddMultipleVoltageInput("input", 2, val => inputVoltages.AddRange(val.Select(v => v.Real)))
             .AddVoltageInput("output", val => outputVoltage = val.Real)
